@@ -15,6 +15,7 @@ df = pd.read_csv("phishing.csv")
 df.drop(columns = 'Index' , inplace = True)
 X = df.iloc[0: , 0:30]
 y = df.iloc[0: , 30]
-
-
-
+#########################################################
+relations = df.corr().iloc[:-1,-1:]
+relations = relations.sort_values(by=['class'],ascending=False)
+X = X[relations[relations['class'] > 0.09].index]
