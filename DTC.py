@@ -35,3 +35,6 @@ def plot_diff(model):
     plt.title('Data scoring')
     plt.show()
 ##################################################
+print()
+print("BEFORE PRUNING :")
+plot_diff(clf)
