@@ -96,3 +96,10 @@ def results_after_purn():
     ax.legend()
     plt.show()
 results_after_purn()
+######################### MAKE MODEL #####################################
+ccp_alpha_v = ccp_alphas[min]
+clf = DecisionTreeClassifier(criterion="entropy",ccp_alpha=ccp_alpha_v)
+clf = clf.fit(X_train, y_train)
+print()
+print("AFTER PRUNING :")
+plot_diff(clf)
