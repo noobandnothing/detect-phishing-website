@@ -77,3 +77,22 @@ nodes_depth_VS_aplha()
 ############### Calculate ALL posssible train and test ##############
 train_scores = [clf.score(X_train, y_train) for clf in clfs]
 test_scores = [clf.score(X_test, y_test) for clf in clfs]
+
+##################### GET most MIN DIFFERENCE #######################
+min = 0
+for counter in range(1,len(train_scores)):
+    if abs(train_scores[min]-test_scores[min]) >  abs(train_scores[counter]-test_scores[counter]):
+        min = counter
+
+
+def results_after_purn():
+    fig, ax = plt.subplots()
+    ax.set_xlabel("alpha")
+    ax.set_ylabel("accuracy")
+    ax.set_title("Accuracy vs alpha for training and testing sets")
+    ax.plot(ccp_alphas, train_scores, marker="o", label="train", drawstyle="steps-post")
+    ax.plot(ccp_alphas, test_scores, marker="o", label="test", drawstyle="steps-post")
+    plt.axvline(x=ccp_alphas[min], color='red', linestyle='--')
+    ax.legend()
+    plt.show()
+results_after_purn()
