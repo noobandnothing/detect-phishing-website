@@ -27,3 +27,19 @@ print(X_train.shape)
 print(X_test.shape)
 print(y_train.shape)
 print(y_test.shape)
+# Create and train the logistic regression model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Make predictions on the testing
+y_pred = model.predict(X_test)
+
+# Calculate the accuracy of the testing data
+accuracy_testing = model.score(X_test, y_test)
+print(f"Accuracy: {accuracy_testing}")
+
+# Calculate the accuracy of the training data data
+accuracy_training = model.score(X_train, y_train)
+print(f"Accuracy: {accuracy_training}")
+print("TRAIN Accurecy : "+ str(model.score(X_train, y_train)))
+print("TEST Accurecy : "+ str(model.score(X_test, y_test)))
