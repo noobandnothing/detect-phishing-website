@@ -112,3 +112,7 @@ _ = tree.plot_tree(clf,fontsize=12,feature_names=clf.feature_names_in_)
 dot_data = tree.export_graphviz(clf, out_file=None ,feature_names=clf.feature_names_in_)
 graph = graphviz.Source(dot_data) 
 graph.render("plot")
+######################### Create PKL #####################################
+
+import pickle
+pickle.dump(clf, open('DTM.pkl','wb'))
