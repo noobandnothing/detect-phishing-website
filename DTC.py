@@ -19,3 +19,19 @@ X_train, X_test , y_train, y_test = train_test_split(X, y, test_size = 0.2 ,rand
 
 clf = DecisionTreeClassifier(criterion="entropy")
 clf = clf.fit(X_train, y_train)
+##################################################
+def plot_diff(model):
+    categories = ['Test', 'Train']
+    print("TRAIN Accurecy : "+ str(model.score(X_train, y_train)))
+    print("TEST Accurecy : "+ str(model.score(X_test, y_test)))
+    values = [model.score(X_train, y_train) , model.score(X_test, y_test)]
+    plt.bar(categories, values)
+    plt.ylim(0, 2)
+    plt.axhline(y=model.score(X_train, y_train), color='red', linestyle='--')
+    plt.axhline(y=model.score(X_test, y_test), color='green', linestyle='--')
+    # Add labels and title
+    plt.xlabel('Type')
+    plt.ylabel('SCORE')
+    plt.title('Data scoring')
+    plt.show()
+##################################################
