@@ -74,3 +74,6 @@ def nodes_depth_VS_aplha():
     fig.tight_layout()
     
 nodes_depth_VS_aplha()
+############### Calculate ALL posssible train and test ##############
+train_scores = [clf.score(X_train, y_train) for clf in clfs]
+test_scores = [clf.score(X_test, y_test) for clf in clfs]
