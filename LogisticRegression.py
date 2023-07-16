@@ -43,3 +43,7 @@ accuracy_training = model.score(X_train, y_train)
 print(f"Accuracy: {accuracy_training}")
 print("TRAIN Accurecy : "+ str(model.score(X_train, y_train)))
 print("TEST Accurecy : "+ str(model.score(X_test, y_test)))
+
+# Create pickle for model
+import pickle
+pickle.dump(model, open('LOM.pkl','wb'))
