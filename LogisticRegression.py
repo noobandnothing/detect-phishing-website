@@ -47,3 +47,17 @@ print("TEST Accurecy : "+ str(model.score(X_test, y_test)))
 # Create pickle for model
 import pickle
 pickle.dump(model, open('LOM.pkl','wb'))
+
+# Plotting score of train and score of test
+plt.bar( ['training_Accuracy' , 'testing_accuracy'],[accuracy_training , accuracy_testing])
+plt.ylim(0, 2)
+plt.axhline(y=model.score(X_train, y_train), color='red', linestyle='--')
+plt.axhline(y=model.score(X_test, y_test), color='green', linestyle='--')
+# Add labels and title
+plt.xlabel('Type')
+plt.ylabel('SCORE')
+plt.title('Data scoring')
+
+# Plot relations
+sns.heatmap(df.corr(), annot=True)
+relations = df.corr()
