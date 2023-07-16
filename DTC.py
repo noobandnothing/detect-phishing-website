@@ -38,3 +38,6 @@ def plot_diff(model):
 print()
 print("BEFORE PRUNING :")
 plot_diff(clf)
+##################################################
+path = clf.cost_complexity_pruning_path(X_train, y_train)
+ccp_alphas, impurities = path.ccp_alphas, path.impurities
