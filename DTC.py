@@ -103,3 +103,12 @@ clf = clf.fit(X_train, y_train)
 print()
 print("AFTER PRUNING :")
 plot_diff(clf)
+
+######################### MAKE TREE #####################################
+from sklearn import tree
+import graphviz 
+fig = plt.figure(figsize=(25,20))
+_ = tree.plot_tree(clf,fontsize=12,feature_names=clf.feature_names_in_)
+dot_data = tree.export_graphviz(clf, out_file=None ,feature_names=clf.feature_names_in_)
+graph = graphviz.Source(dot_data) 
+graph.render("plot")
