@@ -3,10 +3,13 @@ import socket
 import datetime
 import whois
 import requests
+import time
+
 
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 class testdomain:
     def __init__(self,url):
@@ -32,6 +35,7 @@ class testdomain:
             self.google_index = self.__get_googleindex()
             ###############            ###############    ###############
             self.https = self.__check_https()
+            self.url_anchor = self.__get_url_anchor()
             
             self.info()
 
@@ -83,6 +87,39 @@ class testdomain:
             except requests.exceptions.RequestException:
                 return 1
 
+    # GET anchor######################
+    
+    # Function to calculate the percentage of anchor tags that do not link to any webpage
+    def __get_url_anchor(self):
+        # LINUX DRIVER
+        #geckodriver_path = ' '  # Replace with the actual path
+        #driver = webdriver.Firefox(executable_path=geckodriver_path)
+        driver = webdriver.Chrome(options = webdriver.ChromeOptions())
+        driver.get(self.url)
+        time.sleep(5)
+        html = driver.page_source
+        driver.quit()
+        soup = BeautifulSoup(html, 'html.parser')
+
+        total_anchors = 0
+        no_link_anchors = 0
+        
+        for tag in soup.find_all('a'):
+            total_anchors += 1
+                
+            anchor_url = tag.get('href')
+            if anchor_url in ['#', '#skip', 'JavaScript'] or tldextract.extract(anchor_url)[1] not in self.domain:
+                no_link_anchors += 1
+
+        # Calculate the percentage of anchor tags that do not link to any webpage
+        no_link_percentage = (no_link_anchors / total_anchors) * 100 if total_anchors > 0 else 0
+        if no_link_percentage < 31:
+            return -1
+        elif 31 <= no_link_percentage <= 67:
+            return 0
+        else:
+            return 1
+
     def info(self):
         print("url is : " +str(self.url))
         print("length is : " +str(self.length))
@@ -96,6 +133,7 @@ class testdomain:
         print("Expire is : " +str(self.expire))
         print("Google Index is : " +str(self.google_index))
         print("HTTPS is : " +str(self.https))
+        print("URL Anchor is : " +str(self.url_anchor))
 
 
 v = testdomain("https://google.com")
