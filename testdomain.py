@@ -36,6 +36,7 @@ class testdomain:
             ###############            ###############    ###############
             self.https = self.__check_https()
             self.url_anchor = self.__get_url_anchor()
+            self.url_prefixandsuffix = self.__get_url_prefixandsuffix()
             
             self.info()
 
@@ -119,6 +120,12 @@ class testdomain:
             return 0
         else:
             return 1
+        
+    def __get_url_prefixandsuffix(self):
+        if "-" in self.domain or "-" in self.subdomain:
+            return 1
+        else:
+            return -1
 
     def info(self):
         print("url is : " +str(self.url))
