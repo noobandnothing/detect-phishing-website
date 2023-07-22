@@ -2,7 +2,10 @@ import tldextract
 import socket
 import datetime
 import whois
+import requests
+
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
 
 class testdomain:
@@ -26,6 +29,8 @@ class testdomain:
             self.IsDomain = (self.ip != self.domain)
             self.age = self.__getage()
             self.expire = self.__get_domain_expiration()
+            self.google_index = self.__get_googleindex()
+            ###############            ###############    ###############
             self.info()
 
     def __getip(self):
@@ -58,6 +63,12 @@ class testdomain:
             return days_left
         else:
             return -1
+    
+    def __get_googleindex(self):
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+        response = requests.get(f'{"https://www.google.com/search?q="}'+f'{self.domain}', headers=headers)
+        soup = BeautifulSoup(response.content, "html.parser")
+        return int(soup.select_one("#result-stats").text.strip().split(' ')[1].replace(",",""))
 
 
     def info(self):
@@ -71,6 +82,7 @@ class testdomain:
         print("IsDomain is : " +str(self.IsDomain))
         print("Age is : " +str(self.age))
         print("Expire is : " +str(self.expire))
+        print("Google Index is : " +str(self.google_index))
 
 
 v = testdomain("https://google.com")
