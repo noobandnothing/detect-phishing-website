@@ -14,7 +14,8 @@ class testdomain:
         if self.protocol == "":
             raise Exception("Sorry, Invalid URL")
         self.subdomain, self.domain , self.tld = tldextract.extract(url)
-        self.domain = self.domain +"."+ self.tld
+        if self.tld:
+            self.domain = self.domain +"."+ self.tld
         self.ip = self.__getip()
         self.valid = self.__IsValid()
         if not self.valid:
