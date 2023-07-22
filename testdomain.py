@@ -37,6 +37,9 @@ class testdomain:
             self.https = self.__check_https()
             self.url_anchor = self.__get_url_anchor()
             self.url_prefixandsuffix = self.__get_url_prefixandsuffix()
+            tmp = self.__get_webtraffic_pagerank()
+            self.pagerank = tmp[0]
+            self.webtraffic = tmp[1]
             
             self.info()
 
@@ -126,6 +129,72 @@ class testdomain:
             return 1
         else:
             return -1
+        
+    ##################################
+    
+    def __get_webtraffic_pagerank(self):
+        # LINUX DRIVER
+        #geckodriver_path = ' '  # Replace with the actual path
+        #driver = webdriver.Firefox(executable_path=geckodriver_path)
+        driver = webdriver.Chrome(options = webdriver.ChromeOptions())
+        if self.subdomain:
+            target = 'https://www.similarweb.com/website/'+self.subdomain+"."+self.domain+'/#overview'
+        else:
+            target = 'https://www.similarweb.com/website/'+self.domain+'/#overview'
+        driver.get(target)
+        time.sleep(10)
+        current_url = driver.current_url
+        if current_url != target:
+            driver.quit()
+            return [1,1]
+        html = driver.page_source
+
+        driver.quit()
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(html,'html.parser')
+        if len(soup.find_all('div', class_='search-results__no-data')) == 1 :
+            return [1,1]
+        another = BeautifulSoup(str(soup.find_all('div', class_='engagement-list__item')),'html.parser')
+        x = str(another.find_all('p', class_='engagement-list__item-value')[0])
+        x = x.split('>')[1].split('<')[0].replace("'","").replace(",","").replace("-","")
+        if "B" in x:
+            x = x.replace("B","")
+            x = float(x)
+            x = x * 1000000000
+        elif "M" in x:
+            x = x.replace("M","")
+            x = float(x)
+            x = x * 1000000
+        elif "K" in x:
+            x = x.replace("K","")
+            x = float(x)
+            x = x * 1000
+
+        webtraffic = 0
+        if  x == ' ':
+            return [1,1]
+        else:
+            webtraffic = float(x)
+        
+            page_rank = str(soup.find_all('p', class_='wa-rank-list__value')[0]).split('>')[-2].split('<')[0].replace("'","").replace(",","").replace("-","")
+            if page_rank == " ":
+                page_rank = 0
+            else:
+                page_rank = float(page_rank)
+
+            arr = []
+            if page_rank == 0:
+                arr.append(1)
+            else:
+                arr.append(-1)
+
+            if webtraffic < 100000:
+                arr.append(1)
+            else:
+                arr.append(-1)
+        
+            return arr[0],arr[1]
+    ##################################
 
     def info(self):
         print("url is : " +str(self.url))
@@ -142,6 +211,8 @@ class testdomain:
         print("HTTPS is : " +str(self.https))
         print("URL Anchor is : " +str(self.url_anchor))
         print("URL Prefix-Suffix is : " +str(self.url_prefixandsuffix))
+        print("Page Rank is : " +str(self.pagerank))
+        print("Web Traffic is : " +str(self.webtraffic))
 
 
 v = testdomain("https://google.com")
