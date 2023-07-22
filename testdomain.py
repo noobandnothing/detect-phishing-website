@@ -31,6 +31,8 @@ class testdomain:
             self.expire = self.__get_domain_expiration()
             self.google_index = self.__get_googleindex()
             ###############            ###############    ###############
+            self.https = self.__check_https()
+            
             self.info()
 
     def __getip(self):
@@ -70,6 +72,16 @@ class testdomain:
         soup = BeautifulSoup(response.content, "html.parser")
         return int(soup.select_one("#result-stats").text.strip().split(' ')[1].replace(",",""))
 
+    def __check_https(self):
+        if self.protocol != "https":
+            return 1
+        else:
+            try:
+                response = requests.head(self.url)
+                return int(response.url.startswith("https://"))*-1
+            # There is more to check cert
+            except requests.exceptions.RequestException:
+                return 1
 
     def info(self):
         print("url is : " +str(self.url))
@@ -83,6 +95,7 @@ class testdomain:
         print("Age is : " +str(self.age))
         print("Expire is : " +str(self.expire))
         print("Google Index is : " +str(self.google_index))
+        print("HTTPS is : " +str(self.https))
 
 
 v = testdomain("https://google.com")
