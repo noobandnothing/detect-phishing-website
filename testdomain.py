@@ -40,6 +40,9 @@ class testdomain:
             tmp = self.__get_webtraffic_pagerank()
             self.pagerank = tmp[0]
             self.webtraffic = tmp[1]
+            self.requesturl =  self.__get_requesturl()
+            self.urlmeta = self.__get_url_meta()
+
             
             self.info()
 
@@ -195,6 +198,63 @@ class testdomain:
         
             return arr[0],arr[1]
     ##################################
+    def __get_requesturl(self):
+        total_links = 0
+        links_in_domain = 0
+        response = requests.get(self.url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        for tag in soup.find_all(['img', 'source']):
+            if tag.get('src'):
+                link = tag.get('src')
+                if str(urlparse(link).scheme) == '' or tldextract.extract(link)[1]  is None:
+                    links_in_domain +=1
+                    total_links +=1
+                elif tldextract.extract(link)[1] in self.domain:
+                    links_in_domain +=1
+                    total_links +=1
+                else:
+                    total_links +=1
+
+                link_percentage = (total_links-links_in_domain / total_links) * 100 if total_links > 0 else 0
+                if link_percentage < 22:
+                    return -1
+                elif 22 <= link_percentage <= 61:
+                    return 0
+                else:
+                    return 1
+        return -1 
+    ##################################
+    def __get_url_meta(self):
+        # LINUX DRIVER
+        #geckodriver_path = ' '  # Replace with the actual path
+        #driver = webdriver.Firefox(executable_path=geckodriver_path)
+        driver = webdriver.Chrome(options = webdriver.ChromeOptions())
+        driver.get(self.url)
+        time.sleep(5)
+        html = driver.page_source
+        driver.quit()
+        soup = BeautifulSoup(html, 'html.parser')
+        
+        total_links = 0
+        links_in_tags = 0
+
+        # Count total links and links in <Meta>, <Script>, and <Link> tags
+        for tag in soup.find_all(['meta', 'script', 'link']):
+            if tag.get('href') or tag.get('src'):
+                total_links += 1
+                if tag.name in ['meta', 'script', 'link'] and tag.get('href') and tag.get('href').startswith('http'):
+                    links_in_tags += 1
+
+        # Calculate the percentage of links in tags
+        link_percentage = (links_in_tags / total_links) * 100 if total_links > 0 else 0
+        if link_percentage < 17:
+            return -1
+        elif 17 <= link_percentage <= 81:
+            return 0
+        else:
+            return 1
+    ##################################
+    ##################################
 
     def info(self):
         print("url is : " +str(self.url))
@@ -213,6 +273,8 @@ class testdomain:
         print("URL Prefix-Suffix is : " +str(self.url_prefixandsuffix))
         print("Page Rank is : " +str(self.pagerank))
         print("Web Traffic is : " +str(self.webtraffic))
+        print("Request url is : " +str(self.requesturl))
+        print("Url Meta is : " +str(self.urlmeta))
 
 
 v = testdomain("https://google.com")
