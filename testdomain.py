@@ -141,6 +141,7 @@ class testdomain:
         print("Google Index is : " +str(self.google_index))
         print("HTTPS is : " +str(self.https))
         print("URL Anchor is : " +str(self.url_anchor))
+        print("URL Prefix-Suffix is : " +str(self.url_prefixandsuffix))
 
 
 v = testdomain("https://google.com")
