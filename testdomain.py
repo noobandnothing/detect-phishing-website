@@ -42,7 +42,7 @@ class testdomain:
             self.webtraffic = tmp[1]
             self.requesturl =  self.__get_requesturl()
             self.urlmeta = self.__get_url_meta()
-
+            self.sfh = self.__get_SFH()
             
             self.info()
 
@@ -113,10 +113,11 @@ class testdomain:
         
         for tag in soup.find_all('a'):
             total_anchors += 1
-                
+
             anchor_url = tag.get('href')
-            if anchor_url in ['#', '#skip', 'JavaScript'] or tldextract.extract(anchor_url)[1] not in self.domain:
-                no_link_anchors += 1
+            if anchor_url:
+                if anchor_url in ['#', '#skip', 'JavaScript'] or tldextract.extract(anchor_url)[1] not in self.domain:
+                    no_link_anchors += 1
 
         # Calculate the percentage of anchor tags that do not link to any webpage
         no_link_percentage = (no_link_anchors / total_anchors) * 100 if total_anchors > 0 else 0
@@ -201,28 +202,38 @@ class testdomain:
     def __get_requesturl(self):
         total_links = 0
         links_in_domain = 0
-        response = requests.get(self.url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        for tag in soup.find_all(['img', 'source']):
-            if tag.get('src'):
-                link = tag.get('src')
-                if str(urlparse(link).scheme) == '' or tldextract.extract(link)[1]  is None:
-                    links_in_domain +=1
-                    total_links +=1
-                elif tldextract.extract(link)[1] in self.domain:
-                    links_in_domain +=1
-                    total_links +=1
-                else:
-                    total_links +=1
+        try:
+            response = requests.get(self.url)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            for tag in soup.find_all(['img', 'source']):
+                if tag.get('src'):
+                    link = tag.get('src')
+                    if str(urlparse(link).scheme) == '' or tldextract.extract(link)[1]  is None:
+                        links_in_domain +=1
+                        total_links +=1
+                    elif tldextract.extract(link)[1] in self.domain:
+                        links_in_domain +=1
+                        total_links +=1
+                    else:
+                        total_links +=1
 
-                link_percentage = (total_links-links_in_domain / total_links) * 100 if total_links > 0 else 0
-                if link_percentage < 22:
-                    return -1
-                elif 22 <= link_percentage <= 61:
-                    return 0
-                else:
-                    return 1
-        return -1 
+                    link_percentage = (total_links-links_in_domain / total_links) * 100 if total_links > 0 else 0
+                    if link_percentage < 22:
+                        return -1
+                    elif 22 <= link_percentage <= 61:
+                        return 0
+                    else:
+                        return 1
+        except Exception as err: 
+            if 'InvalidSchema' in str(type(err)):
+                # it redirect to none or unkown dest
+                return 1
+            elif 'ConnectionError' in str(type(err)) or 'SSLError' in str(type(err)):
+                # Connection error
+                return 0
+
+        
+        return -1
     ##################################
     def __get_url_meta(self):
         # LINUX DRIVER
@@ -254,6 +265,51 @@ class testdomain:
         else:
             return 1
     ##################################
+    def __get_SFH(self):
+        try:
+            response = requests.post(self.url)
+            sfh = response.url
+            sfh_subdomain, sfh_domain , sfh_tld = tldextract.extract(sfh)
+            if self.IsDomain:
+                if sfh_domain+"."+sfh_tld == self.domain:
+                    return -1
+                else:
+                    return 0
+            elif sfh_subdomain == self.domain:
+                return -1
+            else:
+                return 0
+        except Exception as err: 
+            if 'InvalidSchema' in str(type(err)):
+                # it redirect to none or unkown dest
+                return 1
+            elif 'ConnectionError' in str(type(err)) or 'SSLError' in str(type(err)):
+                # Connection error
+                return 0
+            else:
+                return 1
+    ##################################
+    # def __get_url_links_Pointing_page(self,url):
+    #     try:
+    #         response = requests.get(url)
+    #         soup = BeautifulSoup(response.text, 'html.parser')
+    #         links = soup.find_all('a')
+    #         # Count the number of links pointing to the webpage
+    #         num_links = 0
+    #         for link in links:
+    #             href = link.get('href')
+    #             if href and self.domain in href:
+    #                 num_links += 1
+    #         if num_links == 0:
+    #             return 1
+    #         elif num_links > 0 and num_links <= 2:
+    #             return 0
+    #         else:
+    #             return -1
+
+    #     except requests.exceptions.RequestException as e:
+    #         print("Error:", e)
+    #         return None
     ##################################
 
     def info(self):
@@ -275,6 +331,7 @@ class testdomain:
         print("Web Traffic is : " +str(self.webtraffic))
         print("Request url is : " +str(self.requesturl))
         print("Url Meta is : " +str(self.urlmeta))
+        print("SFH is : " +str(self.sfh))
 
 
-v = testdomain("https://google.com")
+v = testdomain("https://127.0.0.1/mytest/x.php")
